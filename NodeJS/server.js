@@ -121,7 +121,7 @@ app.delete('/api/articles/:id', function (req, res) {
                 log.info("article removed");
                 return res.send({ status: 'OK' });
             } else {
-                 res.statusCode = 500;
+                res.statusCode = 500;
                 log.error('Internal error(%d): %s', res.statusCode, err.message);
                 return res.send({ error: 'Server error' });
             }
@@ -131,7 +131,7 @@ app.delete('/api/articles/:id', function (req, res) {
 
 app.use(function(req, res, next ) {
     res.status(404); 
-    log.debug('Not found URL: %s',req.url); 
+    log.debug('Not found URL: %s', req.url); 
     res.send({ error: 'Not found' }); 
     return; 
 });

@@ -31,4 +31,5 @@ Article.path('title').validate(function (v) {
 });
 
 const ArticleModel = mongoose.model('Article', Article);
+
 module.exports.ArticleModel = ArticleModel;
