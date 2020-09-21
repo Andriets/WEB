@@ -14,10 +14,7 @@ db.once('open', function callback () {
 });
 const Schema = mongoose.Schema;
 const Images = new Schema({
-kind: {
-    type: String,
-    enum: ['thumbnail', 'detail'],
-    required: true },
+    kind: { type: String, enum: ['thumbnail', 'detail'], required: true },
     url: { type: String, required: true }
 });
 
@@ -30,7 +27,7 @@ const Article = new Schema({
 });
 
 Article.path('title').validate(function (v) {
- return v.length > 3 && v.length < 70;
+    return v.length > 3 && v.length < 70;
 });
 
 const ArticleModel = mongoose.model('Article', Article);
