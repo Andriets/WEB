@@ -15,11 +15,11 @@ app.use(bodyParser.json());
 app.use(methodOverride('X-HTTP-Method-Override'));
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get('/ErrorExample', function(req, res, next){ 
+app.get('/ErrorExample', function(req, res, next) { 
     next(new Error('Random error!')); 
 });
 
-app.get('/api', (req, res) => {
+app.get('/api', function(req, res) {
     res.send('API is runing');
 });
 
@@ -79,7 +79,7 @@ app.get('/api/articles/:id', function(req, res) {
     }); 
 }); 
 
-app.put('/api/articles/:id', function (req, res){ 
+app.put('/api/articles/:id', function (req, res) { 
     return ArticleModel.findById(req.params.id, function (err, article) {
         if(!article) {
             res.statusCode = 404;
@@ -96,11 +96,11 @@ app.put('/api/articles/:id', function (req, res){
                 return res.send({ status: 'OK', article:article });
             } else { 
                 if(err.name == 'ValidationError') {
-                res.statusCode = 400;
-                res.send({ error: 'Validation error' });
+	                res.statusCode = 400;
+	                res.send({ error: 'Validation error' });
                 } else {
-                res.statusCode = 500;
-                res.send({ error: 'Server error' });
+	                res.statusCode = 500;
+	                res.send({ error: 'Server error' });
                 }
 
                 log.error('Internal error(%d): %s', res.statusCode,err.message);
@@ -109,7 +109,7 @@ app.put('/api/articles/:id', function (req, res){
     }); 
 }); 
 
-app.delete('/api/articles/:id', function (req, res){ 
+app.delete('/api/articles/:id', function (req, res) { 
     return ArticleModel.findById(req.params.id, function (err, article) {
         if(!article) {
             res.statusCode = 404;
@@ -129,14 +129,14 @@ app.delete('/api/articles/:id', function (req, res){
     }); 
 });
 
-app.use(function(req, res, next){ 
+app.use(function(req, res, next ) { 
     res.status(404); 
     log.debug('Not found URL: %s',req.url); 
     res.send({ error: 'Not found' }); 
     return; 
 });
 
-app.use(function(err, req, res, next){  
+app.use(function(err, req, res, next) {  
     res.status(err.status || 500); 
     log.error('Internal error(%d): %s', res.statusCode, err.message); 
     res.send({ error: err.message });   

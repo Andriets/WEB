@@ -12,8 +12,8 @@ db.on('error', function (err) {
 db.once('open', function callback () {
     log.info("Connected to DB!");
 });
-var Schema = mongoose.Schema; // Schemas
-var Images = new Schema({
+const Schema = mongoose.Schema;
+const Images = new Schema({
 kind: {
     type: String,
     enum: ['thumbnail', 'detail'],
@@ -21,17 +21,17 @@ kind: {
     url: { type: String, required: true }
 });
 
-var Article = new Schema({
+const Article = new Schema({
     title: { type: String, required: true },
     author: { type: String, required: true },
     description: { type: String, required: true },
     images: [Images],
     modified: { type: Date, default: Date.now }
-}); // validation
+});
 
 Article.path('title').validate(function (v) {
  return v.length > 3 && v.length < 70;
 });
 
-var ArticleModel = mongoose.model('Article', Article);
+const ArticleModel = mongoose.model('Article', Article);
 module.exports.ArticleModel = ArticleModel;
