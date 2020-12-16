@@ -7,46 +7,43 @@ const methodOverride = require('method-override');
 const log = require('./libs/log')(module);
 const app = express();
 const config = require('./libs/config');
-const ArticleModel = require('./libs/mongoose').ArticleModel;
+// const ArticleModel = require('./libs/mongoose').ArticleModel;
+const HeroModel = require('./libs/mongoose').HeroModel;
+const cors=require('cors');
 
+app.use(cors());
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(morgan('dev')); 
 app.use(bodyParser.json());
 app.use(methodOverride('X-HTTP-Method-Override'));
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get('/ErrorExample', function(req, res, next) { 
-    next(new Error('Random error!')); 
-});
-
 app.get('/api', function(req, res) {
     res.send('API is runing');
 });
 
-app.get('/api/articles', function(req, res) { 
-    return ArticleModel.find(function (err, articles) {
+app.get('/api/heroes', function(req, res) { 
+    return HeroModel.find(function (err, hero) {
         if (!err) {
-            return res.send(articles);
+            return res.send(hero);
         } else {
             res.statusCode = 500;
             log.error('Internal error (%d): %s', res.statusCode, err.message);
             return res.send({ error: 'Server error' });
         }
     });
-}); 
+});
 
-app.post('/api/articles', function(req, res) {   
-    var article = new ArticleModel({
-        title: req.body.title,
-        author: req.body.author,
-        description: req.body.description,
-        images: req.body.images
+app.post('/api/heroes', function(req, res) {   
+    var hero = new HeroModel({
+        id: getRandomId(),
+        name: req.body.name
     });
 
-    article.save(function (err) {
+    hero.save(function (err) {
         if (!err) {
-            log.info("article created");
-            return res.send({ status: 'OK', article: article});
+            log.info("hero created");
+            return res.send({ status: 'OK', hero: hero});
         } else {
             console.log(err);
 
@@ -61,39 +58,37 @@ app.post('/api/articles', function(req, res) {
             log.error('Internal error(%d): %s', res.statusCode, err.message);
         }
     }); 
-}); 
+});
 
-app.get('/api/articles/:id', function(req, res) { 
-    return ArticleModel.findById(req.params.id, function (err, article) {
-        if(!article) {
+app.get('/api/heroes/:id', function (req, res) {
+    return HeroModel.findOne({id : req.params.id}, function (err, hero) {
+        if (!hero) {
             res.statusCode = 404;
-            return res.send({ error: 'Not found' });
+            return res.send({error: 'Not found'});
         }
         if (!err) {
-            return res.send({ status: 'OK', article:article });
+            return res.send({id:hero.id,name:hero.name});
         } else {
             res.statusCode = 500;
             log.error('Internal error(%d): %s', res.statusCode, err.message);
-            return res.send({ error: 'Server error' });
+            return res.send({error: 'Server error'});
         }
-    }); 
-}); 
+    });
+});
 
-app.put('/api/articles/:id', function (req, res) { 
-    return ArticleModel.findById(req.params.id, function (err, article) {
-        if(!article) {
+app.put('/api/heroes/:id', function (req, res) { 
+    return HeroModel.findOne({id : req.params.id}, function (err, hero) {
+        if(!hero) {
             res.statusCode = 404;
             return res.send({ error: 'Not found' });
         }
 
-        article.title = req.body.title;
-        article.description = req.body.description;
-        article.author = req.body.author;
-        article.images = req.body.images;
-        return article.save(function (err) {
+        hero.name = req.body.name;
+
+        return hero.save(function (err) {
             if (!err) {
-                log.info("article updated");
-                return res.send({ status: 'OK', article:article });
+                log.info("hero updated");
+                return res.send({ status: 'OK', hero:hero });
             } else { 
                 if(err.name == 'ValidationError') {
 	                res.statusCode = 400;
@@ -109,16 +104,16 @@ app.put('/api/articles/:id', function (req, res) {
     }); 
 }); 
 
-app.delete('/api/articles/:id', function (req, res) { 
-    return ArticleModel.findById(req.params.id, function (err, article) {
-        if(!article) {
+app.delete('/api/heroes/:id', function (req, res) { 
+    return HeroModel.findOne({id : req.params.id}, function (err, hero) {
+        if(!hero) {
             res.statusCode = 404;
             return res.send({ error: 'Not found' });
         }
 
-        return article.remove(function (err) {
+        return hero.remove(function (err) {
             if (!err) {
-                log.info("article removed");
+                log.info("hero removed");
                 return res.send({ status: 'OK' });
             } else {
                 res.statusCode = 500;
@@ -146,3 +141,7 @@ app.use(function(err, req, res, next) {
 app.listen(config.get('port'), function() {
     log.info('Express server listening on port ' + config.get('port')); 
 });
+
+function getRandomId() {
+    return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+}
